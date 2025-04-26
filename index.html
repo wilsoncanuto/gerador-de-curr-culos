@@ -1,0 +1,132 @@
+<!DOCTYPE html> 
+<!-- 
+  Licença de Uso Pessoal e Não Comercial
+
+  Copyright (c) 2025 Wilson Canuto Graciano
+
+  Este projeto, incluindo todos os arquivos de código-fonte, design, e bibliotecas incorporadas, é disponibilizado para fins educacionais, pessoais e não comerciais.
+
+  Você está autorizado a:
+  ✅ Usar e modificar este projeto para uso pessoal.
+  ✅ Distribuir versões modificadas ou não modificadas com fins educacionais, desde que mencione o autor original.
+
+  Você NÃO está autorizado a:
+  ❌ Utilizar este projeto ou qualquer parte dele para fins comerciais.
+  ❌ Redistribuir este projeto, com ou sem modificações, sem autorização explícita do autor.
+  ❌ Remover os créditos contidos neste projeto, incluindo comentários e menções ao autor.
+
+  Este projeto é fornecido "no estado em que se encontra", sem garantias de qualquer tipo.
+
+  Para permissões além das descritas, entre em contato com: wcwilson215@gmail.com
+
+  "Gerador de Currículos" © Wilson Canuto 2025
+-->
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <!-- Wilson Canuto 2025 -->
+  <title>Gerador de Currículos</title>
+
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Bibliotecas para PDF e Word -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.6.0/docx.umd.min.js"></script>
+
+  <!-- Estilo com marca d'água animada mais rápida e com fade-in -->
+  <style>
+    body {
+      background-color: #b2eaf4;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 200%;
+      height: 200%;
+      z-index: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><text x='50' y='150' font-family='serif' font-size='54' fill='rgba(0,0,0,0.04)' transform='rotate(-30 150 150)'>Gerador de Currículo</text></svg>");
+      background-repeat: repeat;
+      background-size: 300px 300px;
+      animation: moverMarca 20s linear infinite, fadeIn 2s ease-in forwards;
+      opacity: 0;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes moverMarca {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-150px, -150px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body class="p-6 text-gray-800">
+
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+    <!-- Formulário -->
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-2xl font-bold mb-4">Dados do Currículo</h2>
+      <form id="form" class="space-y-4">
+        <input class="w-full border p-2 rounded" type="text" id="nome" placeholder="Nome Completo" />
+        <input class="w-full border p-2 rounded" type="email" id="email" placeholder="Email" />
+        <input class="w-full border p-2 rounded" type="tel" id="telefone" placeholder="Telefone de Contato" />
+        <input class="w-full border p-2 rounded" type="url" id="github" placeholder="GitHub (URL)" />
+        <input class="w-full border p-2 rounded" type="url" id="linkedin" placeholder="LinkedIn (URL)" />
+
+        <div class="grid grid-cols-2 gap-2">
+          <label class="text-blue-600"><input type="checkbox" id="sec_objetivo" checked /> Objetivo</label>
+          <label class="text-blue-600"><input type="checkbox" id="sec_resumo" checked /> Resumo</label>
+          <label class="text-blue-600"><input type="checkbox" id="sec_formacao" checked /> Formação</label>
+          <label class="text-blue-600"><input type="checkbox" id="sec_experiencia" checked /> Experiência</label>
+          <label class="text-blue-600"><input type="checkbox" id="sec_habilidades" checked /> Habilidades</label>
+          <label class="text-blue-600"><input type="checkbox" id="sec_projetos" checked /> Projetos Pessoais</label>
+        </div>
+
+        <textarea class="w-full border p-2 rounded" id="objetivo" placeholder="Objetivo Profissional"></textarea>
+        <textarea class="w-full border p-2 rounded" id="resumo" placeholder="Resumo Profissional"></textarea>
+        <textarea class="w-full border p-2 rounded" id="formacao" placeholder="Formação Acadêmica"></textarea>
+        <textarea class="w-full border p-2 rounded" id="experiencia" placeholder="Experiência Profissional"></textarea>
+        <textarea class="w-full border p-2 rounded" id="habilidades" placeholder="Habilidades (ex: JavaScript, Excel...)"></textarea>
+        <textarea class="w-full border p-2 rounded" id="projetos" placeholder="Projetos Pessoais (ex: aplicativos, sites, contribuições...)"></textarea>
+
+        <div class="flex flex-wrap gap-2">
+          <button type="button" onclick="gerarPDF()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">PDF</button>
+          <button type="button" onclick="gerarWord()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">Word</button>
+          <button type="button" onclick="salvarNoBanco()" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded">Salvar no Banco</button>
+          <button type="button" onclick="carregarDoBanco()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded">Carregar</button>
+          <button type="button" onclick="limparCampos()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Limpar</button>
+        </div>
+
+        <div class="mt-4">
+          <label class="block font-semibold mb-2">Currículos Salvos:</label>
+          <select id="bancoSelect" class="w-full border p-2 rounded"></select>
+        </div>
+      </form>
+    </div>
+
+    <!-- Pré-visualização -->
+
+    <div class="bg-white p-6 rounded-xl shadow-md">
+      <h2 class="text-2xl font-bold mb-4">Pré-visualização</h2>
+      <div id="preview" class="text-justify font-serif text-[12pt] leading-relaxed whitespace-pre-line"></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
